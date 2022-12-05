@@ -3,10 +3,6 @@ var likelihoodModel = function(){
 var samplePosterior = function(n, posterior, element){
   map(function() { return sample(editor.get(posterior))[element] }, _.range(n))
 }
-
-var approxHDI = function(nsample, nsim, posterior, marginal){
-    return map(function(){listMean(samplePosterior(nsample, posterior, marginal))}, _.range(nsim))
-  }
   
 var quantile = function(array, q){
 var pos = Math.floor(q*(array.length-1))
