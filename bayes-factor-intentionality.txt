@@ -4,10 +4,6 @@ var samplePosterior = function(n, posterior, element){
   map(function() { return sample(editor.get(posterior))[element] }, _.range(n))
 }
 
-var approxHDI = function(nsample, nsim, posterior, marginal){
-    return map(function(){listMean(samplePosterior(nsample, posterior, marginal))}, _.range(nsim))
-  }
-
 var quantile = function(array, q){
 var pos = Math.floor(q*(array.length-1))
 var sortedArray = sort(array)
@@ -136,12 +132,12 @@ var likelihoodPosterior = Infer({method: 'MCMC', samples:5000,burn:5000, callbac
 
 editor.put("likelihoodPosterior",likelihoodPosterior) //save posterior
 
-display(listMean(samplePosterior(1000, "likelihoodPosterior", "bfE")))
-// number of samples drawn to estimate HDI
-var conditionN = 1000
-display([quantile(samplePosterior(1000, "likelihoodPosterior", "bfE"), .025), quantile(samplePosterior(1000, "likelihoodPosterior", "bfE"), .975)])
+var posteriorE = samplePosterior(5000, "likelihoodPosterior", "bfE")
+display(listMean(posteriorE))
+display([quantile(posteriorE, .025), quantile(posteriorE, .975)])
 
-display(listMean(samplePosterior(1000, "likelihoodPosterior", "bfI")))
 
-display([quantile(samplePosterior(1000, "likelihoodPosterior", "bfI"), .025), quantile(samplePosterior(1000, "likelihoodPosterior", "bfI"), .975)])
+var posteriorI = samplePosterior(5000, "likelihoodPosterior", "bfI")
+display(listMean(posteriorI))
+display([quantile(posteriorI, .025), quantile(posteriorI, .975)])
 
