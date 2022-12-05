@@ -143,28 +143,9 @@ var likelihoodPosterior = Infer({method: 'MCMC', samples:5000,burn:5000, callbac
 
 editor.put("likelihoodPosterior",likelihoodPosterior) //save posterior
 
-display(listMean(samplePosterior(1000, "likelihoodPosterior", "bf")))
-// number of samples drawn to estimate HDI
-var conditionN = 1000
-display([quantile(approxHDI(conditionN,1000, "likelihoodPosterior", "bf"), .025), quantile(approxHDI(conditionN,1000, "likelihoodPosterior", "bf"), .975)])
-
-
-display("Epistemic")
-display(listMean(samplePosterior(1000, "likelihoodPosterior", "likelihoodBlueEpist")))
-display(listMean(samplePosterior(1000, "likelihoodPosterior", "likelihoodPinkEpist")))
-display(listMean(samplePosterior(1000, "likelihoodPosterior", "likelihoodOrangeEpist")))
-display(listMean(samplePosterior(1000, "likelihoodPosterior", "likelihoodBlueAndPinkEpist")))
-display(listMean(samplePosterior(1000, "likelihoodPosterior", "likelihoodBlueAndOrangeEpist")))
-display(listMean(samplePosterior(1000, "likelihoodPosterior", "likelihoodOrangeAndPinkEpist")))
-display(listMean(samplePosterior(1000, "likelihoodPosterior", "likelihoodBluePinkOrangeEpist")))
-display(listMean(samplePosterior(1000, "likelihoodPosterior", "likelihoodOtherEpist")))
-display("Instrumental")
-display(listMean(samplePosterior(1000, "likelihoodPosterior", "likelihoodBlueInstrum")))
-display(listMean(samplePosterior(1000, "likelihoodPosterior", "likelihoodPinkInstrum")))
-display(listMean(samplePosterior(1000, "likelihoodPosterior", "likelihoodOrangeInstrum")))
-display(listMean(samplePosterior(1000, "likelihoodPosterior", "likelihoodBlueAndPinkInstrum")))
-display(listMean(samplePosterior(1000, "likelihoodPosterior", "likelihoodBlueAndOrangeInstrum")))
-display(listMean(samplePosterior(1000, "likelihoodPosterior", "likelihoodOrangeAndPinkInstrum")))
-display(listMean(samplePosterior(1000, "likelihoodPosterior", "likelihoodBluePinkOrangeInstrum")))
-display(listMean(samplePosterior(1000, "likelihoodPosterior", "likelihoodOtherInstrum")))
+var posterior = samplePosterior(5000, "likelihoodPosterior", "bf")
+// mean BF
+display(listMean(posterior))
+// BF confidence interval
+display([quantile(posterior, .025), quantile(posterior, .975)])
 
