@@ -421,6 +421,7 @@ var causeLambda = 2 // for drawing number of causes
 var causeLambda2 = 1 // for drawing number of causes after observing second event sequence
 var n = 0.02//noise
 var m = 4 //moderation of noise when "others" hypothesis is sampled
+var nsim = 1000
 
 
 ////// MODELS //////
@@ -487,7 +488,7 @@ return {
 var epistemicPosterior = Infer({method: 'MCMC', samples:50000,burn:50000, callbacks: [editor.MCMCProgress()]}, epistemicModel)
 editor.put("epistemicPosterior",epistemicPosterior) //save posterior
 
-var structurePosterior = samplePosterior(5000, "epistemicPosterior", "structureFull")
+var structurePosterior = samplePosterior(nsim, "epistemicPosterior", "structureFull")
 
 var structurePosteriorSet = map(function(x){
     var temp = splitCause(x)
@@ -565,13 +566,12 @@ var observation2 = [ "moveBlue", "interactBlue" ,"movePink" , "interactPink", "m
 
 var structureReq2 = map(function(x){x.split("&")}, structureSet)
 
-var outcomeSet2 = map(function(x){drawOutcomeWithDecay(x, observation2, decay)}, structureReq2) 
+var outcomeSet2 = map(function(x){drawOutcome(x, observation2)}, structureReq2) 
 
 var otherBool = any(function(x) { return x == "other"; }, structureReq2)
 var n = moderateNoise(n, otherBool, m)
 
 var outcome2Prob = any(function(x) { return x == 1; }, outcomeSet2)
-var outcome2Prob = stickyPrior(outcome2Prob, weight)
 var outcome2Prob = addOutcomeNoise(outcome2Prob, n)
 var outcome2 = flip(outcome2Prob)
 
@@ -599,7 +599,7 @@ var epistemicPosterior2 = Infer({method: 'MCMC', samples:50000,burn:50000, callb
 
 editor.put("epistemicPosterior2",epistemicPosterior2) //save posterior
 
-var structurePosterior = samplePosterior(5000, "epistemicPosterior2", "structureFull")
+var structurePosterior = samplePosterior(nsim, "epistemicPosterior2", "structureFull")
 
 var structurePosteriorSet = map(function(x){
     var temp = splitCause(x)
@@ -652,139 +652,4 @@ var instrumentalModel2 = function(){
 
 var instrumentalPosterior2 = Infer({method: 'MCMC', samples:2000,burn:1000, callbacks: [editor.MCMCProgress()]}, instrumentalModel2)
 editor.put("instrumentalPosterior2",instrumentalPosterior2) //save posterior
-
-
-///// Display Posteriors /////
-
-// normalized posterior
-var epistPost = normalize([listMean(samplePosterior(5000, "epistemicPosterior", "blueOnly")),
-                 listMean(samplePosterior(5000, "epistemicPosterior", "pinkOnly")),
-                 listMean(samplePosterior(5000, "epistemicPosterior", "orangeOnly")),
-                 listMean(samplePosterior(5000, "epistemicPosterior", "blueAndPink")),
-                 listMean(samplePosterior(5000, "epistemicPosterior", "blueAndOrange")),
-                 listMean(samplePosterior(5000, "epistemicPosterior", "orangeAndPink")),
-                 listMean(samplePosterior(5000, "epistemicPosterior", "bluePinkOrange")), 
-                 listMean(samplePosterior(5000, "epistemicPosterior", "other"))
-                          ])
-                
-// unnormalized posterior
-var epistPostRaw = [listMean(samplePosterior(5000, "epistemicPosterior", "blueOnly")),
-                 listMean(samplePosterior(5000, "epistemicPosterior", "pinkOnly")),
-                 listMean(samplePosterior(5000, "epistemicPosterior", "orangeOnly")),
-                 listMean(samplePosterior(5000, "epistemicPosterior", "blueAndPink")),
-                 listMean(samplePosterior(5000, "epistemicPosterior", "blueAndOrange")),
-                 listMean(samplePosterior(5000, "epistemicPosterior", "orangeAndPink")),
-                 listMean(samplePosterior(5000, "epistemicPosterior", "bluePinkOrange")),
-                 listMean(samplePosterior(5000, "epistemicPosterior", "other"))]
-
-
-var instrumPost = normalize([listMean(samplePosterior(5000, "instrumentalPosterior", "blueOnly")),
-                 listMean(samplePosterior(5000, "instrumentalPosterior", "pinkOnly")),
-                 listMean(samplePosterior(5000, "instrumentalPosterior", "orangeOnly")),
-                 listMean(samplePosterior(5000, "instrumentalPosterior", "blueAndPink")),
-                 listMean(samplePosterior(5000, "instrumentalPosterior", "blueAndOrange")),
-                 listMean(samplePosterior(5000, "instrumentalPosterior", "orangeAndPink")),
-                 listMean(samplePosterior(5000, "instrumentalPosterior", "bluePinkOrange")),
-                 listMean(samplePosterior(5000, "instrumentalPosterior", "other"))])
-
-var instrumPostRaw = [listMean(samplePosterior(5000, "instrumentalPosterior", "blueOnly")),
-                 listMean(samplePosterior(5000, "instrumentalPosterior", "pinkOnly")),
-                 listMean(samplePosterior(5000, "instrumentalPosterior", "orangeOnly")),
-                 listMean(samplePosterior(5000, "instrumentalPosterior", "blueAndPink")),
-                 listMean(samplePosterior(5000, "instrumentalPosterior", "blueAndOrange")),
-                 listMean(samplePosterior(5000, "instrumentalPosterior", "orangeAndPink")),
-                 listMean(samplePosterior(5000, "instrumentalPosterior", "bluePinkOrange")),
-                 listMean(samplePosterior(5000, "instrumentalPosterior", "other"))]
-
-var epistPost2 = normalize([listMean(samplePosterior(5000, "epistemicPosterior2", "blueOnly")),
-                 listMean(samplePosterior(5000, "epistemicPosterior2", "pinkOnly")),
-                 listMean(samplePosterior(5000, "epistemicPosterior2", "orangeOnly")),
-                 listMean(samplePosterior(5000, "epistemicPosterior2", "blueAndPink")),
-                 listMean(samplePosterior(5000, "epistemicPosterior2", "blueAndOrange")),
-                 listMean(samplePosterior(5000, "epistemicPosterior2", "orangeAndPink")),
-                 listMean(samplePosterior(5000, "epistemicPosterior2", "bluePinkOrange")), 
-                 listMean(samplePosterior(5000, "epistemicPosterior2", "other"))
-                          ])
-
-var epistPost2Raw = [listMean(samplePosterior(5000, "epistemicPosterior2", "blueOnly")),
-                 listMean(samplePosterior(5000, "epistemicPosterior2", "pinkOnly")),
-                 listMean(samplePosterior(5000, "epistemicPosterior2", "orangeOnly")),
-                 listMean(samplePosterior(5000, "epistemicPosterior2", "blueAndPink")),
-                 listMean(samplePosterior(5000, "epistemicPosterior2", "blueAndOrange")),
-                 listMean(samplePosterior(5000, "epistemicPosterior2", "orangeAndPink")),
-                 listMean(samplePosterior(5000, "epistemicPosterior2", "bluePinkOrange")),
-                 listMean(samplePosterior(5000, "epistemicPosterior2", "other"))]
-
-
-var instrumPost2 = normalize([listMean(samplePosterior(5000, "instrumentalPosterior2", "blueOnly")),
-                 listMean(samplePosterior(5000, "instrumentalPosterior2", "pinkOnly")),
-                 listMean(samplePosterior(5000, "instrumentalPosterior2", "orangeOnly")),
-                 listMean(samplePosterior(5000, "instrumentalPosterior2", "blueAndPink")),
-                 listMean(samplePosterior(5000, "instrumentalPosterior2", "blueAndOrange")),
-                 listMean(samplePosterior(5000, "instrumentalPosterior2", "orangeAndPink")),
-                 listMean(samplePosterior(5000, "instrumentalPosterior2", "bluePinkOrange")),
-                 listMean(samplePosterior(5000, "instrumentalPosterior2", "other"))])
-
-var instrumPost2Raw = [listMean(samplePosterior(5000, "instrumentalPosterior2", "blueOnly")),
-                 listMean(samplePosterior(5000, "instrumentalPosterior2", "pinkOnly")),
-                 listMean(samplePosterior(5000, "instrumentalPosterior2", "orangeOnly")),
-                 listMean(samplePosterior(5000, "instrumentalPosterior2", "blueAndPink")),
-                 listMean(samplePosterior(5000, "instrumentalPosterior2", "blueAndOrange")),
-                 listMean(samplePosterior(5000, "instrumentalPosterior2", "orangeAndPink")),
-                 listMean(samplePosterior(5000, "instrumentalPosterior2", "bluePinkOrange")),
-                 listMean(samplePosterior(5000, "instrumentalPosterior2", "other"))]
-
-
-// sample 1000 samples to estimate HDI
-var conditionN = 1000 
-
-display(instrumPost)
-display(instrumPostRaw)
-
-display([quantile(approxHDI(conditionN,5000, "instrumentalPosterior", "blueOnly"), .025), quantile(approxHDI(conditionN,5000, "instrumentalPosterior", "blueOnly"), .975)])
-display([quantile(approxHDI(conditionN,5000, "instrumentalPosterior", "pinkOnly"), .025), quantile(approxHDI(conditionN,5000, "instrumentalPosterior", "pinkOnly"), .975)])
-display([quantile(approxHDI(conditionN,5000, "instrumentalPosterior", "orangeOnly"), .025), quantile(approxHDI(conditionN,5000, "instrumentalPosterior", "orangeOnly"), .975)])
-display([quantile(approxHDI(conditionN,5000, "instrumentalPosterior", "blueAndPink"), .025), quantile(approxHDI(conditionN,5000, "instrumentalPosterior", "blueAndPink"), .975)])
-display([quantile(approxHDI(conditionN,5000, "instrumentalPosterior", "blueAndOrange"), .025), quantile(approxHDI(conditionN,5000, "instrumentalPosterior", "blueAndOrange"), .975)])
-display([quantile(approxHDI(conditionN,5000, "instrumentalPosterior", "orangeAndPink"), .025), quantile(approxHDI(conditionN,5000, "instrumentalPosterior", "orangeAndPink"), .975)])
-display([quantile(approxHDI(conditionN,5000, "instrumentalPosterior", "bluePinkOrange"), .025), quantile(approxHDI(conditionN,5000, "instrumentalPosterior", "bluePinkOrange"), .975)])
-display([quantile(approxHDI(conditionN,5000, "instrumentalPosterior", "other"), .025), quantile(approxHDI(conditionN,5000, "instrumentalPosterior", "other"), .975)])
-
-
-display(epistPost)
-display(epistPostRaw)
-
-display([quantile(approxHDI(conditionN,5000, "epistemicPosterior", "blueOnly"), .025), quantile(approxHDI(conditionN,5000, "epistemicPosterior", "blueOnly"), .975)])
-display([quantile(approxHDI(conditionN,5000, "epistemicPosterior", "pinkOnly"), .025), quantile(approxHDI(conditionN,5000, "epistemicPosterior", "pinkOnly"), .975)])
-display([quantile(approxHDI(conditionN,5000, "epistemicPosterior", "orangeOnly"), .025), quantile(approxHDI(conditionN,5000, "epistemicPosterior", "orangeOnly"), .975)])
-display([quantile(approxHDI(conditionN,5000, "epistemicPosterior", "blueAndPink"), .025), quantile(approxHDI(conditionN,5000, "epistemicPosterior", "blueAndPink"), .975)])
-display([quantile(approxHDI(conditionN,5000, "epistemicPosterior", "blueAndOrange"), .025), quantile(approxHDI(conditionN,5000, "epistemicPosterior", "blueAndOrange"), .975)])
-display([quantile(approxHDI(conditionN,5000, "epistemicPosterior", "orangeAndPink"), .025), quantile(approxHDI(conditionN,5000, "epistemicPosterior", "orangeAndPink"), .975)])
-display([quantile(approxHDI(conditionN,5000, "epistemicPosterior", "bluePinkOrange"), .025), quantile(approxHDI(conditionN,5000, "epistemicPosterior", "bluePinkOrange"), .975)])
-display([quantile(approxHDI(conditionN,5000, "epistemicPosterior", "other"), .025), quantile(approxHDI(conditionN,5000, "epistemicPosterior", "other"), .975)])
-
-display(instrumPost2)
-display(instrumPost2Raw)
-
-display([quantile(approxHDI(conditionN,5000, "instrumentalPosterior2", "blueOnly"), .025), quantile(approxHDI(conditionN,5000, "instrumentalPosterior2", "blueOnly"), .975)])
-display([quantile(approxHDI(conditionN,5000, "instrumentalPosterior2", "pinkOnly"), .025), quantile(approxHDI(conditionN,5000, "instrumentalPosterior2", "pinkOnly"), .975)])
-display([quantile(approxHDI(conditionN,5000, "instrumentalPosterior2", "orangeOnly"), .025), quantile(approxHDI(conditionN,5000, "instrumentalPosterior2", "orangeOnly"), .975)])
-display([quantile(approxHDI(conditionN,5000, "instrumentalPosterior2", "blueAndPink"), .025), quantile(approxHDI(conditionN,5000, "instrumentalPosterior2", "blueAndPink"), .975)])
-display([quantile(approxHDI(conditionN,5000, "instrumentalPosterior2", "blueAndOrange"), .025), quantile(approxHDI(conditionN,5000, "instrumentalPosterior2", "blueAndOrange"), .975)])
-display([quantile(approxHDI(conditionN,5000, "instrumentalPosterior2", "orangeAndPink"), .025), quantile(approxHDI(conditionN,5000, "instrumentalPosterior2", "orangeAndPink"), .975)])
-display([quantile(approxHDI(conditionN,5000, "instrumentalPosterior2", "bluePinkOrange"), .025), quantile(approxHDI(conditionN,5000, "instrumentalPosterior2", "bluePinkOrange"), .975)])
-display([quantile(approxHDI(conditionN,5000, "instrumentalPosterior2", "other"), .025), quantile(approxHDI(conditionN,5000, "instrumentalPosterior2", "other"), .975)])
-
-
-display(epistPost2)
-display(epistPost2Raw)
-
-display([quantile(approxHDI(conditionN,5000, "epistemicPosterior2", "blueOnly"), .025), quantile(approxHDI(conditionN,5000, "epistemicPosterior2", "blueOnly"), .975)])
-display([quantile(approxHDI(conditionN,5000, "epistemicPosterior2", "pinkOnly"), .025), quantile(approxHDI(conditionN,5000, "epistemicPosterior2", "pinkOnly"), .975)])
-display([quantile(approxHDI(conditionN,5000, "epistemicPosterior2", "orangeOnly"), .025), quantile(approxHDI(conditionN,5000, "epistemicPosterior2", "orangeOnly"), .975)])
-display([quantile(approxHDI(conditionN,5000, "epistemicPosterior2", "blueAndPink"), .025), quantile(approxHDI(conditionN,5000, "epistemicPosterior2", "blueAndPink"), .975)])
-display([quantile(approxHDI(conditionN,5000, "epistemicPosterior2", "blueAndOrange"), .025), quantile(approxHDI(conditionN,5000, "epistemicPosterior2", "blueAndOrange"), .975)])
-display([quantile(approxHDI(conditionN,5000, "epistemicPosterior2", "orangeAndPink"), .025), quantile(approxHDI(conditionN,5000, "epistemicPosterior2", "orangeAndPink"), .975)])
-display([quantile(approxHDI(conditionN,5000, "epistemicPosterior2", "bluePinkOrange"), .025), quantile(approxHDI(conditionN,5000, "epistemicPosterior2", "bluePinkOrange"), .975)])
-display([quantile(approxHDI(conditionN,5000, "epistemicPosterior2", "other"), .025), quantile(approxHDI(conditionN,5000, "epistemicPosterior2", "other"), .975)])
 
