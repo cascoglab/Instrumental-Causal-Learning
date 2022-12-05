@@ -379,11 +379,7 @@ var samplePosterior = function(n, posterior, element){
   map(function() { return sample(editor.get(posterior))[element] }, _.range(n))
 }
 
-// function to approximate HDI
-var approxHDI = function(nsample, nsim, posterior, marginal){
-  return map(function(){listMean(samplePosterior(nsample, posterior, marginal))}, _.range(nsim))
-}
-
+// to approximate HDI
 var quantile = function(array, q){
   var pos = Math.floor(q*(array.length-1))
   var sortedArray = sort(array)
